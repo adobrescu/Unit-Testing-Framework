@@ -31,7 +31,18 @@ De-a valma:
 	
 		
 
+!!!! Ideal ar fi ca testul sa stea intr-un fisier fara functii/etc cu reguli legate de pachetul de testare. Sa arate ceva de genul:
+	
+<?php
+	
+	//$params - input provenit din pachetul de testare
+	
+	$ob=new Object();
 
+	$obj->method($params);
+?>
+
+?!!!!Cu se poate specifica o lista de $params????
 	
 	
 
