@@ -1,7 +1,24 @@
 <?php
 
 namespace debug;
-
+/*
+ * Un obiect test include un fisier de test.
+ * Un fisier de test are extensia *.test.php
+ * Obiectul determina daca exista alte fisiere legate de fisierul  de test:
+ * 
+ * *.setup.php (pentru initializari)
+ *		Diferite variable "globale" necesare testului se pun in $this->context ( de exmplu un obiect Database)
+ * 
+ * *.teardown.php (curatenie dupa test)
+ *		Curata $this->context de ce a pus *.setup.php  acolo)
+ * 
+ * *.params.php (contine un array de parametri pentru test)
+ *		Parametrii se pun in $this->testDataset. 
+ *		Testul va fi rulat pentru fiecare element al acestului array in parte, testul accesand elementul curent prin $this->testData	
+ *	
+ * Exista si alte fisiere de initializare si de curatenie per director (vezi TestDir)
+ * 
+ */
 class Test
 {
 	const EXTENSION_TEST='test.php';
@@ -10,7 +27,7 @@ class Test
 	const EXTENSION_TEARDOWN='teardown.php';
 	
 	protected $fileName, $paramsFileName, $setupFileName, $teardownFileName;
-	protected $context=array(), $testDataset, $testData;
+	protected $context=array(), $testDataset=array(), $testData;
 	
 	public function __construct($fileName)
 	{
@@ -45,18 +62,23 @@ class Test
 		if($this->paramsFileName)
 		{
 			include($this->paramsFileName);
+			if(!is_array($this->testDataset))
+			{
+				die('Test data must be an array in file: '.$this->paramsFileName);
+			}
 		}
-		if(is_array($this->testDataset))
+		
+		if(!$this->testDataset)
+		{
+			$this->runTest();
+		}
+		else
 		{
 			foreach($this->testDataset as $data)
 			{
 				$this->testData=$data;
 				$this->runTest();
 			}
-		}
-		else
-		{
-			$this->runTest();
 		}
 		if($this->teardownFileName)
 		{

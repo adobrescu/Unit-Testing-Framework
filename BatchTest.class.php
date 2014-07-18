@@ -4,6 +4,11 @@ namespace debug;
 
 include_once(__DIR__.'/TestDir.class.php');
 
+/**
+ * Creeaza o lista de TestDir si le ruleaza testele
+ * 
+ */
+
 class BatchTest
 {
 	protected $dirs, $testFiles;

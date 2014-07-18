@@ -2,6 +2,16 @@
 
 namespace debug;
 
+/* Creaza o lista de teste dintr-un director si le ruleaza
+ * Pe langa fisierele de test din director (vezi Test), TestDir cauta si fisiere 
+ * 
+ * *.setup.php si *teardown.php care nu sint asociate unor teste (de exemplu un fisier init.setup.php care nu are in acelasi director un init.test.php)
+ * Si le include inaintea, respectiv dupa rularea testelor.
+ * 
+ * Pentru subdirectoare creeaza o lista de TestDir pe care , de asemenea, le va rula la run.
+ * 
+ */
+
 include_once(__DIR__.'/Test.class.php');
 
 class TestDir
