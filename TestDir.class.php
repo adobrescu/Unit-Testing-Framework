@@ -87,7 +87,7 @@ class TestDir
 		{
 			foreach($this->testFileNames as $testFileName)
 			{
-				$test=new Test($testFileName);
+				$test=$this->createTest($testFileName);
 				$test->run($this->context);
 			}
 				
@@ -107,5 +107,9 @@ class TestDir
 				include($teardownFileName);
 			}
 		}
+	}
+	protected function createTest($testFileName)
+	{
+		return new Test($testFileName);
 	}
 }
