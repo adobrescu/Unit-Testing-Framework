@@ -6,15 +6,15 @@ namespace debug;
  * Un fisier de test are extensia *.test.php
  * Obiectul determina daca exista alte fisiere legate de fisierul  de test:
  * 
- * *.setup.php (pentru initializari)
+ * NUMETEST.setup.php (pentru initializari)
  *		Diferite variable "globale" necesare testului se pun in $this->context ( de exmplu un obiect Database)
  * 
- * *.teardown.php (curatenie dupa test)
+ * NUMETEST.teardown.php (curatenie dupa test)
  *		Curata $this->context de ce a pus *.setup.php  acolo)
  * 
- * *.params.php (contine un array de parametri pentru test)
+ * NUMETEST.params.php sau NUMETEST.*.params.php(contine un array de parametri pentru test)
  *		Parametrii se pun in $this->testDataset. 
- *		Testul va fi rulat pentru fiecare element al acestului array in parte, testul accesand elementul curent prin $this->testData	
+ *		Testul va fi rulat pentru fisier cu parametri si pentru fiecare element al acestului array-urilor in parte, testul accesand elementul curent (parametrii) prin $this->testData	
  *	
  * Exista si alte fisiere de initializare si de curatenie per director (vezi TestDir)
  * 
@@ -26,7 +26,7 @@ class Test
 	const EXTENSION_SETUP='setup.php';
 	const EXTENSION_TEARDOWN='teardown.php';
 	
-	protected $fileName, $paramsFileName, $setupFileName, $teardownFileName;
+	protected $fileName, $paramsFileNames, $setupFileName, $teardownFileName;
 	protected $context=array(), $testDataset=array(), $testData;
 	
 	public function __construct($fileName)
@@ -34,9 +34,11 @@ class Test
 		$this->fileName=$fileName;
 		$baseFileName=preg_replace('|'.preg_quote('.'.static::EXTENSION_TEST, '|').'|', '', $fileName);
 		
+		$this->paramsFileNames=glob($baseFileName.'.*.'.static::EXTENSION_PARAMS);
+		
 		if(is_file($baseFileName.'.'.static::EXTENSION_PARAMS))
 		{
-			$this->paramsFileName=$baseFileName.'.'.static::EXTENSION_PARAMS;
+			$this->paramsFileNames[]=$baseFileName.'.'.static::EXTENSION_PARAMS;
 		}
 		if(is_file($baseFileName.'.'.static::EXTENSION_SETUP))
 		{
@@ -59,12 +61,15 @@ class Test
 				die('Test context must be an array in file: '.$this->setupFileName);
 			}
 		}
-		if($this->paramsFileName)
+		if($this->paramsFileNames)
 		{
-			include($this->paramsFileName);
-			if(!is_array($this->testDataset))
+			foreach($this->paramsFileNames as $paramsFileName)
 			{
-				die('Test data must be an array in file: '.$this->paramsFileName);
+				include($paramsFileName);
+				if(!is_array($this->testDataset))
+				{
+					die('Test data must be an array in file: '.$paramsFileName);
+				}
 			}
 		}
 		
