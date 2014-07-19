@@ -21,6 +21,10 @@ class TestDir
 	protected $testFileNames, $setupFileNames, $teardownFileNames;
 	protected $testDirs;
 	
+	public $numTests, $numFailedTests;
+	public $failedAssertions=array(), $numAssertions=0, $numFailedAssertions=0;
+	
+	
 	public function __construct($dirName)
 	{
 		$this->getTestFiles($dirName);
@@ -89,6 +93,7 @@ class TestDir
 			{
 				$test=$this->createTest($testFileName);
 				$test->run($this->context);
+				$this->addTestAssertions($test);
 			}
 				
 		}
@@ -97,6 +102,7 @@ class TestDir
 			foreach($this->testDirs as $testDir)
 			{
 				$testDir->run($this->context);
+				$this->addTestAssertions($testDir);
 			}
 				
 		}	
@@ -107,6 +113,16 @@ class TestDir
 				include($teardownFileName);
 			}
 		}
+	}
+	protected function addTestAssertions($test)
+	{
+		$this->numTests+=is_a($test, 'TestDir') ? $test->numTests : 1;
+		$this->numFailedTests+=is_a($test, 'TestDir') ? $test->numFailedTests : ($test->numFailedAssertions?1:0);
+				
+		$this->failedAssertions=array_merge($this->failedAssertions, $test->failedAssertions);
+				
+		$this->numAssertions+=$test->numAssertions;
+		$this->numFailedAssertions+=$test->numFailedAssertions;
 	}
 	protected function createTest($testFileName)
 	{

@@ -29,6 +29,10 @@ class Test
 	protected $fileName, $paramsFileNames, $setupFileName, $teardownFileName;
 	protected $context=array(), $testDataset=array(), $testData;
 	
+	
+	public $failedAssertions=array();
+	public $numAssertions=0, $numFailedAssertions=0;
+	
 	public function __construct($fileName)
 	{
 		$this->fileName=$fileName;
@@ -89,9 +93,56 @@ class Test
 		{
 			include($this->teardownFileName);
 		}
+		
 	}
 	public function runTest()
 	{
 		include($this->fileName);
+	}
+
+	/*assertion methods*/
+	public function ASSERT($evaluatedCondition, $expectedValue, $receivedValue, $msg='')
+	{
+		$debugBacktrace=debug_backtrace(0,0);
+		
+		for($i=0; $i<count($debugBacktrace); $i++)
+		{
+			if(preg_match('|'.preg_quote('.'.static::EXTENSION_TEST, '|').'$|', $debugBacktrace[$i]['file']))
+			{
+				$testFileName=$debugBacktrace[$i]['file'];
+				$testLine=$debugBacktrace[$i]['line'];
+			}
+		}
+		
+		$this->numAssertions++;
+		$this->numFailedAssertions+=(!$evaluatedCondition?1:0);
+		if(!$evaluatedCondition)
+		{
+			$this->failedAssertions[]=array(
+				'status' => $evaluatedCondition ? 'success':'failed',
+				'msg' => ($msg?$msg:'Expected: '.$expectedValue."\n".'Received: '.$receivedValue),
+				'file' => $testFileName,
+				'line' => $testLine
+				);
+		}
+	}
+	public function ASSERT_TRUE($evaluatedCondition)
+	{
+		$this->ASSERT($evaluatedCondition, 'TRUE', 'FALSE');
+	}
+	public function ASSERT_EQUALS($val1, $val2, $strict=true)
+	{
+		if($strict)
+		{
+			$this->ASSERT($val1===$val2, $val1, $val2);
+		}
+		else
+		{
+			$this->ASSERT($val1==$val2, $val1, $val2);
+		}
+	}
+	public function ASSERT_MSG($msg)
+	{
+		$this->ASSERT(false, null, null, $msg);
 	}
 }
