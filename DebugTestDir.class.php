@@ -1,7 +1,5 @@
 <?php
 
-namespace debug;
-
 /* Creaza o lista de teste dintr-un director si le ruleaza
  * Pe langa fisierele de test din director (vezi Test), TestDir cauta si fisiere 
  * 
@@ -12,9 +10,9 @@ namespace debug;
  * 
  */
 
-include_once(__DIR__.'/Test.class.php');
+include_once(__DIR__.'/DebugTest.class.php');
 
-class TestDir
+class DebugTestDir
 {
 	
 	protected $context=array();
@@ -33,12 +31,12 @@ class TestDir
 	{
 		$testFiles=array();
 		
-		$testExtensionPattern='|'.preg_quote('.'.Test::EXTENSION_TEST, '|').'$|';
-		$paramsExtensionPattern='|'.preg_quote('.'.Test::EXTENSION_PARAMS, '|').'$|';
-		$setupExtensionPattern='|'.preg_quote('.'.Test::EXTENSION_SETUP, '|').'$|';
-		$teardownExtensionPattern='|'.preg_quote('.'.Test::EXTENSION_TEARDOWN, '|').'$|';
+		$testExtensionPattern='|'.preg_quote('.'.DebugTest::EXTENSION_TEST, '|').'$|';
+		$paramsExtensionPattern='|'.preg_quote('.'.DebugTest::EXTENSION_PARAMS, '|').'$|';
+		$setupExtensionPattern='|'.preg_quote('.'.DebugTest::EXTENSION_SETUP, '|').'$|';
+		$teardownExtensionPattern='|'.preg_quote('.'.DebugTest::EXTENSION_TEARDOWN, '|').'$|';
 		
-		$extensionsPattern='#'.preg_quote('.'.Test::EXTENSION_SETUP, '#').'$|'.preg_quote('.'.Test::EXTENSION_TEARDOWN, '#').'#';
+		$extensionsPattern='#'.preg_quote('.'.DebugTest::EXTENSION_SETUP, '#').'$|'.preg_quote('.'.DebugTest::EXTENSION_TEARDOWN, '#').'#';
 		
 		if($files=glob($dir.'/*'))
 		{
@@ -46,7 +44,7 @@ class TestDir
 			{
 				if(is_dir($file))
 				{
-					$this->testDirs[]=new TestDir($file);
+					$this->testDirs[]=$this->createTestDir($file);
 					continue;
 				}
 				if (preg_match($paramsExtensionPattern, $file))
@@ -60,11 +58,11 @@ class TestDir
 				else
 				{
 					$baseFileName=preg_replace($extensionsPattern, '', $file);
-					if (preg_match($setupExtensionPattern, $file) && !file_exists($baseFileName.'.'.Test::EXTENSION_TEST) )
+					if (preg_match($setupExtensionPattern, $file) && !file_exists($baseFileName.'.'.DebugTest::EXTENSION_TEST) )
 					{
 						$this->setupFileNames[]=$file;
 					}
-					elseif (preg_match($teardownExtensionPattern, $file) && !file_exists($baseFileName.'.'.Test::EXTENSION_TEST))
+					elseif (preg_match($teardownExtensionPattern, $file) && !file_exists($baseFileName.'.'.DebugTest::EXTENSION_TEST))
 					{
 						$this->teardownFileNames[]=$file;
 					}
@@ -76,6 +74,10 @@ class TestDir
 	}
 	public function run(&$context)
 	{
+		if(!defined('DEBUG_TESTS_RUNNING'))
+		{
+			define('DEBUG_TESTS_RUNNING', true);
+		}
 		if($this->setupFileNames)
 		{
 			foreach($this->setupFileNames as $setupFileName)
@@ -126,6 +128,11 @@ class TestDir
 	}
 	protected function createTest($testFileName)
 	{
-		return new Test($testFileName);
+		return new DebugTest($testFileName);
+	}
+	protected function createTestDir($dir)
+	{
+		$className=get_called_class();
+		return new $className($dir);
 	}
 }

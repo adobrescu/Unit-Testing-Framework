@@ -1,6 +1,5 @@
 <?php
 
-namespace debug;
 /*
  * Un obiect test include un fisier de test.
  * Un fisier de test are extensia *.test.php
@@ -19,7 +18,7 @@ namespace debug;
  * Exista si alte fisiere de initializare si de curatenie per director (vezi TestDir)
  * 
  */
-class Test
+class DebugTest
 {
 	const EXTENSION_TEST='test.php';
 	const EXTENSION_PARAMS='params.php';
@@ -56,6 +55,11 @@ class Test
 	}
 	public function run(&$context)
 	{
+		//print_r($this); exit();
+		if(!defined('DEBUG_TESTS_RUNNING'))
+		{
+			define('DEBUG_TESTS_RUNNING', true);
+		}
 		$this->context=$context;
 		if($this->setupFileName)
 		{
@@ -65,17 +69,8 @@ class Test
 				die('Test context must be an array in file: '.$this->setupFileName);
 			}
 		}
-		if($this->paramsFileNames)
-		{
-			foreach($this->paramsFileNames as $paramsFileName)
-			{
-				include($paramsFileName);
-				if(!is_array($this->testDataset))
-				{
-					die('Test data must be an array in file: '.$paramsFileName);
-				}
-			}
-		}
+		
+		$this->loadParams();
 		
 		if(!$this->testDataset)
 		{
@@ -95,11 +90,26 @@ class Test
 		}
 		
 	}
+	protected function loadParams()
+	{
+		if($this->paramsFileNames)
+		{
+			foreach($this->paramsFileNames as $paramsFileName)
+			{
+				include($paramsFileName);
+				
+				if(!is_array($this->testDataset))
+				{
+					die('Test data must be an array in file: '.$paramsFileName);
+				}
+			}
+		}
+	}
 	public function runTest()
 	{
 		include($this->fileName);
 	}
-
+	
 	/*assertion methods*/
 	public function ASSERT($evaluatedCondition, $expectedValue, $receivedValue, $msg='')
 	{

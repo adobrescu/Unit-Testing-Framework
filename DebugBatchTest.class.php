@@ -1,15 +1,13 @@
 <?php
 
-namespace debug;
-
-include_once(__DIR__.'/TestDir.class.php');
+include_once(__DIR__.'/DebugTestDir.class.php');
 
 /**
  * Creeaza o lista de TestDir si le ruleaza testele
  * 
  */
 
-class BatchTest
+class DebugBatchTest
 {
 	protected $dirs, $testFiles;
 	protected $testDirs;
@@ -30,13 +28,17 @@ class BatchTest
 		foreach($this->dirs as $dir)
 		{
 			
-			$this->testDirs[]=new TestDir($dir);
+			$this->testDirs[]=$this->createTestDir($dir);
 		}
 	}
 	protected function run()
 	{
 		$context=null;
 		
+		if(!defined('DEBUG_TESTS_RUNNING'))
+		{
+			define('DEBUG_TESTS_RUNNING', true);
+		}
 		foreach($this->testDirs as $testDir)
 		{
 			$testDir->run($context);
@@ -66,6 +68,10 @@ class BatchTest
 					$assertion['msg']."\n\n";
 			$line++;
 		}
-		echo $html;
+		echo '<pre>'.$html.'</pre>';
+	}
+	public function createTestDir($dir)
+	{
+		return new DebugTestDir($dir);
 	}
 }
