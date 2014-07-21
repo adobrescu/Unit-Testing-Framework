@@ -11,10 +11,11 @@
  */
 
 include_once(__DIR__.'/DebugTest.class.php');
+include_once(__DIR__.'/DebugPageTest.class.php');
 
 class DebugTestDir
 {
-	
+	protected $testClassName;
 	protected $context=array();
 	protected $testFileNames, $setupFileNames, $teardownFileNames;
 	protected $testDirs;
@@ -23,8 +24,9 @@ class DebugTestDir
 	public $failedAssertions=array(), $numAssertions=0, $numFailedAssertions=0;
 	
 	
-	public function __construct($dirName)
+	public function __construct($dirName, $testClassName)
 	{
+		$this->testClassName=$testClassName;
 		$this->getTestFiles($dirName);
 	}
 	protected function getTestFiles($dir)
@@ -128,11 +130,11 @@ class DebugTestDir
 	}
 	protected function createTest($testFileName)
 	{
-		return new DebugTest($testFileName);
+		$testClassName=$this->testClassName;
+		return new $testClassName($testFileName);
 	}
 	protected function createTestDir($dir)
 	{
-		$className=get_called_class();
-		return new $className($dir);
+		return new DebugTestDir($dir, $this->testClassName);
 	}
 }

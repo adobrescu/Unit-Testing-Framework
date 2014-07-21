@@ -11,13 +11,15 @@ class DebugBatchTest
 {
 	protected $dirs, $testFiles;
 	protected $testDirs;
+	protected $testClassName;
 	
 	public $numTests, $numFailedTests;
 	public $failedAssertions=array(), $numAssertions=0, $numFailedAssertions=0;
 	
-	public function __construct($testDirs)
+	public function __construct($testDirs, $testClassName)
 	{
 		$this->dirs=is_array($testDirs)?$testDirs:array($testDirs);
+		$this->testClassName=$testClassName;
 		$this->createTestDirs();
 		
 		$this->run();
@@ -72,6 +74,6 @@ class DebugBatchTest
 	}
 	public function createTestDir($dir)
 	{
-		return new DebugTestDir($dir);
+		return new DebugTestDir($dir, $this->testClassName);
 	}
 }
