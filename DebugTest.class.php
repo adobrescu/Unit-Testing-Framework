@@ -7,13 +7,16 @@
  * 
  * NUMETEST.setup.php (pentru initializari)
  *		Diferite variable "globale" necesare testului se pun in $this->context ( de exmplu un obiect Database)
- * 
+ *		$context e pasat prin referinta intre diversele obiecte Test si TEstDir, deci poate fi modificat intr-un test si modificarile se transimit
+ *		mai departe (de ex. id-uri de obiecte nou create pot fi pasate mai departe pentru teste urmatoare)
  * NUMETEST.teardown.php (curatenie dupa test)
  *		Curata $this->context de ce a pus *.setup.php  acolo)
  * 
  * NUMETEST.params.php sau NUMETEST.*.params.php(contine un array de parametri pentru test)
  *		Parametrii se pun in $this->testDataset. 
  *		Testul va fi rulat pentru fisier cu parametri si pentru fiecare element al acestului array-urilor in parte, testul accesand elementul curent (parametrii) prin $this->testData	
+ *		Daca parametrii de test trebuie modificati pentru testele (fisierele de test) care urmeaza se poate folosi $this->refTestData care este referinta la inregistrarea
+ *			curenta din testDataset
  *	
  * Exista si alte fisiere de initializare si de curatenie per director (vezi TestDir)
  * 
@@ -54,13 +57,14 @@ class DebugTest
 		
 	}
 	public function run(&$context)
-	{
+	{ 
 		//print_r($this); exit();
 		if(!defined('DEBUG_TESTS_RUNNING'))
 		{
 			define('DEBUG_TESTS_RUNNING', true);
 		}
-		$this->context=$context;
+		$this->context=&$context;
+		
 		if($this->setupFileName)
 		{
 			include($this->setupFileName);
@@ -78,9 +82,10 @@ class DebugTest
 		}
 		else
 		{
-			foreach($this->testDataset as $data)
+			foreach($this->testDataset as &$data)
 			{
 				$this->testData=$data;
+				$this->refTestData=&$data;
 				$this->runTest();
 			}
 		}
@@ -109,20 +114,48 @@ class DebugTest
 	{
 		include($this->fileName);
 	}
+	/*misc.*/
+	public function loadObjectFromArray(&$obj, $arr)
+	{
+		
+		foreach($arr as $propertyName=>$propertyValue)
+		{
+			
+			$obj->$propertyName=$propertyValue;
+		}
+	}
 	
+	public function trace($var, $exit=false)
+	{
+		echo '<pre>';
+		print_r($var);
+		echo '</pre>';
+		if($exit)
+		{
+			exit();
+		}
+	}
 	/*assertion methods*/
-	public function ASSERT($evaluatedCondition, $expectedValue, $receivedValue, $msg='')
+	public function ASSERT($evaluatedCondition, $expectedValue, $receivedValue, $msg='', $appendMsg=true)
 	{
 		$debugBacktrace=debug_backtrace(0,0);
-		
+		//echo __FILE__;
+		//print_r($debugBacktrace);
+		//exit();
 		for($i=0; $i<count($debugBacktrace); $i++)
 		{
-			if(preg_match('|'.preg_quote('.'.static::EXTENSION_TEST, '|').'$|', $debugBacktrace[$i]['file']))
+			//if(preg_match('|'.preg_quote('.'.static::EXTENSION_TEST, '|').'$|', $debugBacktrace[$i]['file']))
+			if($debugBacktrace[$i]['file']!=__FILE__)
 			{
 				$testFileName=$debugBacktrace[$i]['file'];
 				$testLine=$debugBacktrace[$i]['line'];
+				break;
 			}
 		}
+		
+		
+		//$testFileName=$debugBacktrace[1]['file'];
+		//$testLine=$debugBacktrace[1]['line'];
 		
 		$this->numAssertions++;
 		$this->numFailedAssertions+=(!$evaluatedCondition?1:0);
@@ -130,29 +163,52 @@ class DebugTest
 		{
 			$this->failedAssertions[]=array(
 				'status' => $evaluatedCondition ? 'success':'failed',
-				'msg' => ($msg?$msg:'Expected: '.$expectedValue."\n".'Received: '.$receivedValue),
+				'msg' => ($msg && !$appendMsg?$msg:'Expected '.gettype($expectedValue).': '.htmlentities(print_r($expectedValue,1))."\n".'Received '.gettype($receivedValue).': '.htmlentities(print_r($receivedValue,1))).($appendMsg && $msg?"\n".$msg:''),
 				'file' => $testFileName,
 				'line' => $testLine
 				);
+			if(is_array($expectedValue) && is_array($receivedValue))
+			{
+				$this->failedAssertions[count($this->failedAssertions)-1]['msg'].="\n".'Arrays Diff:'."\n".htmlentities(print_r(array_diff( $receivedValue, $expectedValue),1));
+			}
 		}
 	}
 	public function ASSERT_TRUE($evaluatedCondition)
 	{
 		$this->ASSERT($evaluatedCondition, 'TRUE', 'FALSE');
 	}
-	public function ASSERT_EQUALS($val1, $val2, $strict=true)
+	public function ASSERT_FALSE($evaluatedCondition)
+	{
+		$this->ASSERT(!$evaluatedCondition, 'TRUE', 'FALSE');
+	}
+	public function ASSERT_EQUALS($val1, $val2, $strict=true, $msg='')
 	{
 		if($strict)
 		{
-			$this->ASSERT($val1===$val2, $val1, $val2);
+			$this->ASSERT($val1===$val2, $val1, $val2, $msg);
 		}
 		else
 		{
-			$this->ASSERT($val1==$val2, $val1, $val2);
+			$this->ASSERT($val1==$val2, $val1, $val2, $msg);
 		}
 	}
 	public function ASSERT_MSG($msg)
 	{
 		$this->ASSERT(false, null, null, $msg);
+	}
+	public function ASSERT_NULL($var)
+	{
+		$this->ASSERT(is_null($var), true, is_null($var));
+	}
+	public function ASSERT_ARRAY_IN_OBJECT($obj, $arr, $strict=true)
+	{
+		foreach($arr as $propertyName=>$propertyValue)
+		{
+			$this->ASSERT_EQUALS($propertyValue, $obj->$propertyName, $strict, 'Property name: '.$propertyName);
+		}
+	}
+	
+	public function ASSERT_CLASS_HAS_STATIC_PROPERY($className, $propertyName)
+	{
 	}
 }

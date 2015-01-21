@@ -11,7 +11,7 @@
  */
 
 include_once(__DIR__.'/DebugTest.class.php');
-include_once(__DIR__.'/DebugPageTest.class.php');
+
 
 class DebugTestDir
 {
@@ -26,6 +26,7 @@ class DebugTestDir
 	
 	public function __construct($dirName, $testClassName)
 	{
+		include_once(__DIR__.'/'.$testClassName.'.class.php');
 		$this->testClassName=$testClassName;
 		$this->getTestFiles($dirName);
 	}
@@ -76,6 +77,7 @@ class DebugTestDir
 	}
 	public function run(&$context)
 	{
+		$this->context=&$context;
 		if(!defined('DEBUG_TESTS_RUNNING'))
 		{
 			define('DEBUG_TESTS_RUNNING', true);
@@ -120,8 +122,9 @@ class DebugTestDir
 	}
 	protected function addTestAssertions($test)
 	{
-		$this->numTests+=is_a($test, 'TestDir') ? $test->numTests : 1;
-		$this->numFailedTests+=is_a($test, 'TestDir') ? $test->numFailedTests : ($test->numFailedAssertions?1:0);
+		
+		$this->numTests+=is_a($test, 'DebugTestDir') ? $test->numTests : 1;
+		$this->numFailedTests+=is_a($test, 'DebugTestDir') ? $test->numFailedTests : ($test->numFailedAssertions?1:0);
 				
 		$this->failedAssertions=array_merge($this->failedAssertions, $test->failedAssertions);
 				

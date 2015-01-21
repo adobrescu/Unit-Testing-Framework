@@ -23,6 +23,7 @@ class DebugBatchTest
 		$this->createTestDirs();
 		
 		$this->run();
+		
 		$this->printInfo();
 	}
 	protected function createTestDirs()
