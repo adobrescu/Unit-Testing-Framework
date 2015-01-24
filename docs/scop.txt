@@ -1,4 +1,4 @@
-<?php
+
 
 Pachetul trebuie sa ofere posibilitatea de a testa:
 	
@@ -9,11 +9,11 @@ Pachetul trebuie sa ofere posibilitatea de a testa:
 
 De-a valma:
 	
-- Testarea trebuie sa se faca in bucla, toate testele sa poata fi rulate dintr-"un foc".
+- Testarea trebuie sa se faca in bucla, toate testele sa poata fi rulate "dintr-un foc".
 		
 - Testele pot sta in fisiere diferite. Sa aiba o anumita extensie;
 
-- Codul pachetului nu trebuie sa influenteza functionarea codului testat. Trebuie pus intr-un namespace separat si sa nu creeza variabile globale;
+- Codul pachetului nu trebuie sa influenteze functionarea codului testat. Trebuie pus intr-un namespace separat si sa nu creeze variabile globale;
 	constantele trebuie declarate cu "const" pentru a nu interfera cu constante din codul testat;
 
 - La rularea unui script/pagini in browser sa se genereze un fisier de "context" cu $_GET, $_POST, etc care sa poata fi folosite mai tarziu la generarea de teste;
