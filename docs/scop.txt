@@ -1,5 +1,3 @@
-xvcvxcv
-
 Pachetul trebuie sa ofere posibilitatea de a testa:
 	
 1. Componente/clase (unit testing)
