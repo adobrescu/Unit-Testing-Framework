@@ -40,7 +40,7 @@ De-a valma:
 	$obj->method($params);
 ?>
 
-?!!!!Cu se poate specifica o lista de $params????
+?!!!!Cum se poate specifica o lista de $params????
 	
 	
 
