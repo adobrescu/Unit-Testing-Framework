@@ -17,4 +17,4 @@ define('TEST_DB_PASSWORD', '');
 /* end defs */
 
 
-new DebugBatchTest(__DIR__.'/path-to-tests', 'DebugDbTest');
+new DebugBatchTest(__DIR__.'/sample-tests', 'DebugDbTest');
