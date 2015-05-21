@@ -29,7 +29,7 @@ class DebugTest
 	const EXTENSION_TEARDOWN='teardown.php';
 	
 	protected $fileName, $paramsFileNames, $setupFileName, $teardownFileName;
-	protected $context=array(), $testDataset, $testData;
+	protected $context=array(), $testDataset=array(), $testData;
 	
 	
 	public $failedAssertions=array();
