@@ -57,4 +57,8 @@ class DebugPageTest extends DebugTest
 			
 			return $this->getPage(APP_TEST_WEBROOT_DIR.'/dispatch-http-request.php');
 		}
+		public function cleanupPageContext()
+		{	
+			RootController::___debugUnsetInstance();
+		}
 }
