@@ -15,7 +15,7 @@ class DebugBatchTest
 	
 	public $numTests, $numFailedTests;
 	public $failedAssertions=array(), $numAssertions=0, $numFailedAssertions=0;
-	
+	public $executionTime;
 	public function __construct($testDirs, $testClassName)
 	{
 		$this->dirs=is_array($testDirs)?$testDirs:array($testDirs);
@@ -37,7 +37,7 @@ class DebugBatchTest
 	protected function run()
 	{
 		$context=null;
-		
+		$timeStart=microtime(true);
 		if(!defined('DEBUG_TESTS_RUNNING'))
 		{
 			define('DEBUG_TESTS_RUNNING', true);
@@ -54,10 +54,12 @@ class DebugBatchTest
 			
 			$this->failedAssertions=array_merge($this->failedAssertions, $testDir->failedAssertions);
 		}
+		$this->executionTime=microtime(true)-$timeStart;
 	}
 	public function printInfo()
 	{
-		$html='Number of tests: '.$this->numTests."\n".
+		$html='Execution time: '.$this->executionTime."s\n".
+				'Number of tests: '.$this->numTests."\n".
 				'Number of failed tests: '.$this->numFailedTests."\n".
 				'Number of assertions: '.$this->numAssertions."\n".
 				'Number of failed assertions: '.$this->numFailedAssertions."\n".
