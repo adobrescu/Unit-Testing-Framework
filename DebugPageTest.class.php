@@ -44,19 +44,25 @@ class DebugPageTest extends DebugTest
 				$GLOBALS[$superGlobalName]=array();
 			}
         }
-        public function getPage($pageFileNameOrUrl)
+        public function getPage($pageFileNameOrUrl, $ob=true)
         {
-                ob_start();
+			if($ob)
+            {
+				ob_start();
+			}
+            
+			include($pageFileNameOrUrl);
 
-                include($pageFileNameOrUrl);
+			$html=ob_get_contents();
 
-                $html=ob_get_contents();
+			if($ob)
+			{
+				ob_end_clean();
+			}
+            
+			$domDoc=new HtmlDocument($html);
 
-                ob_end_clean();
-
-                $domDoc=new HtmlDocument($html);
-
-                return $domDoc;
+			return $domDoc;
         }
 
         public function run(&$context)
@@ -67,12 +73,19 @@ class DebugPageTest extends DebugTest
 
                 $this->cleanupSuperGlobals();
         }
-		public function runPage($pageUri)
+		public function runPage($pageUri, $ob=true)
 		{
-			$_SERVER['DOCUMENT_ROOT']=static::$documentRoot;
-			$_SERVER['REQUEST_URI']=preg_replace('/[\/]+/', '/', substr(realpath(APP_TEST_WEBROOT_DIR), strlen(static::$documentRoot)).'///'.$pageUri);
+			$pageUriParts=parse_url($pageUri);
+			if(isset($pageUriParts['query']))
+			{
+				parse_str($pageUriParts['query'], $_GET);
+			}
 			
-			return $this->getPage(APP_TEST_WEBROOT_DIR.'/dispatch-http-request.php');
+			
+			$_SERVER['DOCUMENT_ROOT']=static::$documentRoot;
+			$_SERVER['REQUEST_URI']=preg_replace('/[\/]+/', '/', substr(realpath(APP_TEST_WEBROOT_DIR), strlen(static::$documentRoot)).'/'.$pageUri);
+			
+			return $this->getPage(APP_TEST_WEBROOT_DIR.'/dispatch-http-request.php', $ob);
 		}
 		public function cleanupPageContext()
 		{	
