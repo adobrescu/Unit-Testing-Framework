@@ -35,10 +35,14 @@ class DebugPageTest extends DebugTest
         }
         protected function cleanupSuperGlobals()
         {
-                foreach(static::$___superGlobalNames as $superGlobalName)
-                {
-                        $GLOBALS[$superGlobalName]=array();
-                }
+			foreach(static::$___superGlobalNames as $superGlobalName)
+			{
+				global ${$superGlobalName};
+				
+				${$superGlobalName}=array();
+				
+				$GLOBALS[$superGlobalName]=array();
+			}
         }
         public function getPage($pageFileNameOrUrl)
         {
