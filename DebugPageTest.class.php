@@ -6,7 +6,17 @@ include_once(__DIR__.'/HtmlDocument.class.php');
 class DebugPageTest extends DebugTest
 {
         static $___superGlobalNames=array( 'GLOBALS', '_SERVER', '_GET', '_POST', '_FILES', '_COOKIE', '_SESSION', '_REQUEST' );
-
+		static $documentRoot;
+		
+		public function __construct($fileName)
+		{
+			if(!static::$documentRoot)
+			{
+				/* $_SERVER['DOCUMENT_ROOT'] will be unset by cleanupSuperGlobals*/
+				static::$documentRoot=realpath($_SERVER['DOCUMENT_ROOT']);
+			}
+			parent::__construct($fileName);
+		}
         protected function loadParams()
         {
                 parent::loadParams();
@@ -47,13 +57,16 @@ class DebugPageTest extends DebugTest
 
         public function run(&$context)
         {
+				$this->cleanupSuperGlobals();
+			
                 parent::run($context);
 
                 $this->cleanupSuperGlobals();
         }
 		public function runPage($pageUri)
 		{
-			$_SERVER['REQUEST_URI']=preg_replace('/[\/]+/', '/', substr(realpath(APP_TEST_WEBROOT_DIR), strlen(realpath($_SERVER['DOCUMENT_ROOT']))).'///'.$pageUri);
+			$_SERVER['DOCUMENT_ROOT']=static::$documentRoot;
+			$_SERVER['REQUEST_URI']=preg_replace('/[\/]+/', '/', substr(realpath(APP_TEST_WEBROOT_DIR), strlen(static::$documentRoot)).'///'.$pageUri);
 			
 			return $this->getPage(APP_TEST_WEBROOT_DIR.'/dispatch-http-request.php');
 		}
