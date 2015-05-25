@@ -139,12 +139,9 @@ class DebugTest
 	public function ASSERT($evaluatedCondition, $expectedValue, $receivedValue, $msg='', $appendMsg=true)
 	{
 		$debugBacktrace=debug_backtrace(0,0);
-		//echo __FILE__;
-		//print_r($debugBacktrace);
-		//exit();
+		
 		for($i=0; $i<count($debugBacktrace); $i++)
 		{
-			//if(preg_match('|'.preg_quote('.'.static::EXTENSION_TEST, '|').'$|', $debugBacktrace[$i]['file']))
 			if($debugBacktrace[$i]['file']!=__FILE__)
 			{
 				$testFileName=$debugBacktrace[$i]['file'];
@@ -153,9 +150,6 @@ class DebugTest
 			}
 		}
 		
-		
-		//$testFileName=$debugBacktrace[1]['file'];
-		//$testLine=$debugBacktrace[1]['line'];
 		
 		$this->numAssertions++;
 		$this->numFailedAssertions+=(!$evaluatedCondition?1:0);
@@ -169,7 +163,7 @@ class DebugTest
 				);
 			if(is_array($expectedValue) && is_array($receivedValue))
 			{
-				$this->failedAssertions[count($this->failedAssertions)-1]['msg'].="\n".'Arrays Diff:'."\n".htmlentities(print_r(array_diff( $receivedValue, $expectedValue),1));
+				$this->failedAssertions[count($this->failedAssertions)-1]['msg'].="\n".'Arrays Diff:'."\n".htmlentities(print_r(@array_diff( $receivedValue, $expectedValue),1));
 			}
 		}
 	}
