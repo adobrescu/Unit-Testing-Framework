@@ -73,6 +73,10 @@ class DebugTestDir
 					
 			}
 		}
+		
+		
+		sort($this->testFileNames);
+		
 		return $testFiles;
 	}
 	public function run(&$context)
