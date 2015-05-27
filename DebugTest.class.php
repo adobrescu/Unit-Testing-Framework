@@ -166,39 +166,40 @@ class DebugTest
 				$this->failedAssertions[count($this->failedAssertions)-1]['msg'].="\n".'Arrays Diff:'."\n".htmlentities(print_r(@array_diff( $receivedValue, $expectedValue),1));
 			}
 		}
+		return $evaluatedCondition;
 	}
 	public function ASSERT_TRUE($evaluatedCondition)
 	{
-		$this->ASSERT($evaluatedCondition, 'TRUE', 'FALSE');
+		return $this->ASSERT($evaluatedCondition, 'TRUE', 'FALSE');
 	}
 	public function ASSERT_FALSE($evaluatedCondition)
 	{
-		$this->ASSERT(!$evaluatedCondition, 'TRUE', 'FALSE');
+		return $this->ASSERT(!$evaluatedCondition, 'TRUE', 'FALSE');
 	}
 	public function ASSERT_EQUALS($val1, $val2, $strict=true, $msg='')
 	{
 		if($strict)
 		{
-			$this->ASSERT($val1===$val2, $val1, $val2, $msg);
+			return $this->ASSERT($val1===$val2, $val1, $val2, $msg);
 		}
 		else
 		{
-			$this->ASSERT($val1==$val2, $val1, $val2, $msg);
+			return $this->ASSERT($val1==$val2, $val1, $val2, $msg);
 		}
 	}
 	public function ASSERT_MSG($msg)
 	{
-		$this->ASSERT(false, null, null, $msg);
+		return $this->ASSERT(false, null, null, $msg);
 	}
 	public function ASSERT_NULL($var)
 	{
-		$this->ASSERT(is_null($var), true, is_null($var));
+		return $this->ASSERT(is_null($var), true, is_null($var));
 	}
 	public function ASSERT_ARRAY_IN_OBJECT($obj, $arr, $strict=true)
 	{
 		foreach($arr as $propertyName=>$propertyValue)
 		{
-			$this->ASSERT_EQUALS($propertyValue, $obj->$propertyName, $strict, 'Property name: '.$propertyName);
+			return $this->ASSERT_EQUALS($propertyValue, $obj->$propertyName, $strict, 'Property name: '.$propertyName);
 		}
 	}
 	
