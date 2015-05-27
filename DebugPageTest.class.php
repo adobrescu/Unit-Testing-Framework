@@ -91,4 +91,17 @@ class DebugPageTest extends DebugTest
 		{	
 			RootController::___debugUnsetInstance();
 		}
+		public function getGIdBacktraceIndex($gId)
+		{
+			global $backtrace;
+			
+			foreach($backtrace as $backtraceKey=>$backtraceEntry)
+			{
+				if($backtraceEntry['gid']==$gId)
+				{
+					return $backtraceKey;
+				}
+			}
+			return null;
+		}
 }
