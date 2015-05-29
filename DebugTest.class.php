@@ -193,7 +193,7 @@ class DebugTest
 	}
 	public function ASSERT_NULL($var)
 	{
-		return $this->ASSERT(is_null($var), true, is_null($var));
+		return $this->ASSERT(is_null($var), 'NULL', 'NOT NULL');
 	}
 	public function ASSERT_ARRAY_IN_OBJECT($obj, $arr, $strict=true)
 	{
