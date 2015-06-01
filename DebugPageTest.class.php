@@ -80,8 +80,7 @@ class DebugPageTest extends DebugTest
 			{
 				parse_str($pageUriParts['query'], $_GET);
 			}
-			
-			
+					
 			$_SERVER['DOCUMENT_ROOT']=static::$documentRoot;
 			$_SERVER['REQUEST_URI']=preg_replace('/[\/]+/', '/', substr(realpath(APP_TEST_WEBROOT_DIR), strlen(static::$documentRoot)).'/'.$pageUri);
 			
