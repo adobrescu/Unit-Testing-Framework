@@ -138,7 +138,7 @@ class DebugTest
 		{
 			mkdir(dirname($traceFileName), 0777, true);
 		}
-		echo $traceFileName.'<br>';
+		
 		xdebug_start_trace($traceFileName);
 	}
 	protected function xdebugStopTrace()
