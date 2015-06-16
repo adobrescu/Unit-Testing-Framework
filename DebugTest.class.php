@@ -28,6 +28,10 @@ class DebugTest
 	const EXTENSION_SETUP='setup.php';
 	const EXTENSION_TEARDOWN='teardown.php';
 	
+	protected $collectXdebugTrace=true;
+	protected $xdebugTraceDirName='xdebug-trace';
+	protected $xdebugTrace;
+	
 	protected $fileName, $paramsFileNames, $setupFileName, $teardownFileName;
 	protected $context=array(), $testDataset=array(), $testData;
 	
@@ -110,9 +114,94 @@ class DebugTest
 			}
 		}
 	}
+
 	public function runTest()
 	{
+		$this->xdebugStartTrace();
+			
 		include($this->fileName);
+		
+		$this->xdebugStopTrace();
+		
+	}
+	/*xdebug functions call info*/
+	protected function xdebugStartTrace()
+	{
+		if(!$this->collectXdebugTrace)
+		{
+			return;
+		}
+		
+		$traceFileName=$this->xdebugTraceDirName.'/'.$this->fileName;
+		
+		if(!is_dir(dirname($traceFileName)))
+		{
+			mkdir(dirname($traceFileName), 0777, true);
+		}
+		echo $traceFileName.'<br>';
+		xdebug_start_trace($traceFileName);
+	}
+	protected function xdebugStopTrace()
+	{
+		if(!$this->collectXdebugTrace)
+		{
+			return;
+		}
+		xdebug_stop_trace();
+	}
+	public function xdebugGetTrace()
+	{
+		$this->xdebugLoadTrace();
+		
+		return $this->xdebugTrace;
+	}
+	protected function xdebugLoadTrace()
+	{
+		$traceFileName=$this->xdebugTraceDirName.'/'.$this->fileName.'.xt';
+		$fp=fopen($traceFileName, 'r');
+		$numLine=0;
+		$break=false;
+		
+		while(!feof($fp))
+		{
+			//skip first 6 lines
+			$traceLine=fgetcsv($fp, 4096, "\t");
+			
+			if($numLine++<6)
+			{
+				continue;
+			}
+			if(!isset($traceLine[2]))
+			{
+				continue;
+			}
+			$this->xdebugTrace[$numLine]=$traceLine;
+			
+			switch($traceLine[2])
+			{
+				case '0':
+					//$traceLine[1] function #
+					$functionCalls[$traceLine[1]]=&$this->xdebugTrace[$numLine];
+					break;
+				case '1': //exit, calculate call duration
+					if(!isset($functionCalls[$traceLine[1]]))//exit from a function/include from first 6 entries; stop the loop
+					{
+						$break=true;
+						break;
+					}
+					$functionCalls[$traceLine[1]]['duration']=$traceLine[3]-$functionCalls[$traceLine[1]][3];
+					break;
+				case 'R': //return
+					$functionCalls[$traceLine[1]]['return']=$traceLine[5];
+					break;
+			}
+			if($break)
+			{
+				break;
+			}
+		}
+		
+		fclose($fp);
 	}
 	/*misc.*/
 	public function loadObjectFromArray(&$obj, $arr)

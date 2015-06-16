@@ -18,3 +18,12 @@ define('TEST_DB_PASSWORD', '');
 
 
 new DebugBatchTest(__DIR__.'/sample-tests', 'DebugDbTest');
+
+$dirNameLen=strlen(__DIR__)+1;
+foreach((new DebugBatchTest(__DIR__.'/sample-tests', 'DebugDbTest'))->xdebugGetTraceFiles() as $xdebugTraceFile)
+{
+?>
+	<a href="xdebug-trace-info.php?trace_file=<?=urlencode($xdebugTraceFile)?>"><?=str_replace('.test.php', '', substr($xdebugTraceFile, $dirNameLen))?></a><br>
+<?php
+	
+}

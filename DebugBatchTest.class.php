@@ -9,7 +9,7 @@ include_once(__DIR__.'/DebugTestDir.class.php');
 
 class DebugBatchTest
 {
-	protected $dirs, $testFiles;
+	protected $dirs;
 	protected $testDirs;
 	protected $testClassName;
 	
@@ -74,6 +74,15 @@ class DebugBatchTest
 			$line++;
 		}
 		echo '<pre>'.$html.'</pre>';
+	}
+	public function xdebugGetTraceFiles()
+	{
+		$files=array();
+		foreach($this->testDirs as $testDir)
+		{
+			$files=array_merge($files, $testDir->getTestFileNames());
+		}
+		return $files;
 	}
 	public function createTestDir($dir)
 	{

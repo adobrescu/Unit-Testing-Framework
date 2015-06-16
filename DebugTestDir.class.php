@@ -145,4 +145,17 @@ class DebugTestDir
 	{
 		return new DebugTestDir($dir, $this->testClassName);
 	}
+	public function getTestFileNames()
+	{
+		$testFileNames=$this->testFileNames?$this->testFileNames:array();;
+		
+		if($this->testDirs)
+		{
+			foreach($this->testDirs as $testDir)
+			{
+				$testFileNames=array_merge($testFileNames, $testDir->getTestFileNames());
+			}
+		}
+		return $testFileNames;
+	}
 }
