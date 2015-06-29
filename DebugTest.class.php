@@ -41,6 +41,8 @@ class DebugTest
 	
 	public function __construct($fileName)
 	{
+		$this->collectXdebugTrace=!$this->collectXdebugTrace?false:extension_loaded('xdebug');
+		
 		$this->fileName=$fileName;
 		$baseFileName=preg_replace('|'.preg_quote('.'.static::EXTENSION_TEST, '|').'|', '', $fileName);
 		
