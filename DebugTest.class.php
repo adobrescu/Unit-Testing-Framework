@@ -278,6 +278,25 @@ class DebugTest
 			return $this->ASSERT($val1==$val2, $val1, $val2, $msg);
 		}
 	}
+	public function ASSERT_ARRAYS_KEYS_EQUALS($arr1, $arr2)
+	{
+		$keys1=array_keys($arr1);
+		$keys2=array_keys($arr2);
+		
+		$keys1=sort($keys1);
+		$keys2=sort($keys2);
+		
+		return $this->ASSERT_EQUALS($keys1, $keys2);
+	}
+	public function ASSERT_ARRAY_HAS_KEYS($keys, $arr)
+	{
+		foreach($keys as $key)
+		{
+			{
+				$this->ASSERT(array_key_exists($key, $arr), $key, '', 'Array key not set: '.$key);
+			}
+		}
+	}
 	public function ASSERT_MSG($msg)
 	{
 		return $this->ASSERT(false, null, null, $msg);
