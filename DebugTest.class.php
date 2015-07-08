@@ -215,7 +215,21 @@ class DebugTest
 			$obj->$propertyName=$propertyValue;
 		}
 	}
-	
+	public function arrayRemoveValues($arr, $values)
+	{
+		if(!is_array($values))
+		{
+			$values=array($values);
+		}
+		foreach($arr as $key=>$value)
+		{
+			if(in_array($value, $values))
+			{
+				unset($arr[$key]);
+			}
+		}
+		return $arr;
+	}
 	public function trace($var, $exit=false)
 	{
 		echo '<pre>';
