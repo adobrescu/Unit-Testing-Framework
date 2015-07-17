@@ -28,7 +28,7 @@ class DebugTest
 	const EXTENSION_SETUP='setup.php';
 	const EXTENSION_TEARDOWN='teardown.php';
 	
-	protected $collectXdebugTrace=true;
+	protected $collectXdebugTrace=false;
 	protected $xdebugTraceDirName='xdebug-trace';
 	protected $xdebugTrace;
 	
