@@ -284,21 +284,21 @@ class DebugDbTest extends DebugTest
 		$columnNames='';
 		foreach($record as $columnName=>$columnValue)
 		{
-			if(!isset($schema[IDX_COLUMNS][$columnName]))
+			if(!isset($schema[alib\model\Database::IDX_COLUMNS][$columnName]))
 			{
 				continue;
 			}
-			switch($schema[IDX_COLUMNS][$columnName][FLD_IDX_TYPE])
+			switch($schema[alib\model\Database::IDX_COLUMNS][$columnName][alib\model\Database::IDX_TYPE])
 			{
-				case FLD_TYPE_BIT:
-					$columnNames.=($columnNames?',':'').'BIN('.SQL_ID_QUOTE.$columnName.SQL_ID_QUOTE.') AS '.SQL_ID_QUOTE.$columnName.SQL_ID_QUOTE;
+				case alib\model\Database::TYPE_BIT:
+					$columnNames.=($columnNames?',':'').'BIN('.alib\model\Database::SQL_ID_QUOTE.$columnName.alib\model\Database::SQL_ID_QUOTE.') AS '.alib\model\Database::SQL_ID_QUOTE.$columnName.alib\model\Database::SQL_ID_QUOTE;
 									
 					//$where.=($where?' AND ':'').'BIN('.$tableName.'.'.$columnName.')=\''.addslashes($columnValue).'\''."\n";
 					break;
 				
 					
 				default:
-					$columnNames.=($columnNames?',':'').SQL_ID_QUOTE.$columnName.SQL_ID_QUOTE;
+					$columnNames.=($columnNames?',':'').alib\model\Database::SQL_ID_QUOTE.$columnName.alib\model\Database::SQL_ID_QUOTE;
 					
 					
 					//$where.=($where?' AND ':'').$tableName.'.'.$columnName.'=\''.addslashes($columnValue).'\''."\n";
@@ -307,7 +307,7 @@ class DebugDbTest extends DebugTest
 			
 			
 		}
-		foreach($schema[ID_INDEXES] as $indexName=>$columns)
+		foreach($schema[alib\model\Database::IDX_ID_COLUMNS] as $indexName=>$columns)
 		{
 			$idFound=true;
 			foreach($columns as $columnName=>$null)
@@ -326,9 +326,9 @@ class DebugDbTest extends DebugTest
 		}
 		
 		
-		foreach($schema[ID_INDEXES][$idIndexName] as $columnName=>$null)
+		foreach($schema[alib\model\Database::IDX_ID_COLUMNS][$idIndexName] as $columnName=>$null)
 		{
-			$where .= ($where?' AND ':'').SQL_ID_QUOTE.$columnName.SQL_ID_QUOTE.'=\''.addslashes($record[$columnName]).'\'';
+			$where .= ($where?' AND ':'').alib\model\Database::SQL_ID_QUOTE.$columnName.alib\model\Database::SQL_ID_QUOTE.'=\''.addslashes($record[$columnName]).'\'';
 		}
 		
 		
