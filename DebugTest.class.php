@@ -173,15 +173,27 @@ class DebugTest
 		$this->numFailedAssertions+=(!$evaluatedCondition?1:0);
 		if(!$evaluatedCondition)
 		{
-			$this->failedAssertions[]=array(
-				'status' => $evaluatedCondition ? 'success':'failed',
-				'msg' => ($msg && !$appendMsg?$msg:'Expected '.gettype($expectedValue).': '.htmlentities(print_r($expectedValue,1))."\n".'Received '.gettype($receivedValue).': '.htmlentities(print_r($receivedValue,1))).($appendMsg && $msg?"\n".$msg:''),
-				'file' => $testFileName,
-				'line' => $testLine
-				);
-			if(is_array($expectedValue) && is_array($receivedValue))
+			if(is_null($expectedValue) && is_null($receivedValue))
 			{
-				$this->failedAssertions[count($this->failedAssertions)-1]['msg'].="\n".'Arrays Diff:'."\n".htmlentities(print_r(@array_diff( $receivedValue, $expectedValue),1));
+				$this->failedAssertions[]=array(
+					'status' => 'failed',
+					'msg' => $msg,
+					'file' => $testFileName,
+					'line' => $testLine
+					);
+			}
+			else
+			{
+				$this->failedAssertions[]=array(
+					'status' => $evaluatedCondition ? 'success':'failed',
+					'msg' => ($msg && !$appendMsg?$msg:'Expected '.gettype($expectedValue).': '.htmlentities(print_r($expectedValue,1))."\n".'Received '.gettype($receivedValue).': '.htmlentities(print_r($receivedValue,1))).($appendMsg && $msg?"\n".$msg:''),
+					'file' => $testFileName,
+					'line' => $testLine
+					);
+				if(is_array($expectedValue) && is_array($receivedValue))
+				{
+					$this->failedAssertions[count($this->failedAssertions)-1]['msg'].="\n".'Arrays Diff:'."\n".htmlentities(print_r(@array_diff( $receivedValue, $expectedValue),1));
+				}
 			}
 		}
 		return $evaluatedCondition;
