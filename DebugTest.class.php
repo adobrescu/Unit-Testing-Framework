@@ -28,10 +28,6 @@ class DebugTest
 	const EXTENSION_SETUP='setup.php';
 	const EXTENSION_TEARDOWN='teardown.php';
 	
-	public $collectXdebugTrace=false;
-	protected $xdebugTraceDirName='xdebug-trace';
-	protected $xdebugTrace;
-	
 	protected $fileName, $paramsFileNames, $setupFileName, $teardownFileName;
 	protected $context=array(), $testDataset=array(), $testData;
 	
@@ -41,8 +37,7 @@ class DebugTest
 	
 	public function __construct($fileName)
 	{
-		$this->collectXdebugTrace=!$this->collectXdebugTrace?false:extension_loaded('xdebug');
-		
+				
 		$this->fileName=$fileName;
 		$baseFileName=preg_replace('|'.preg_quote('.'.static::EXTENSION_TEST, '|').'|', '', $fileName);
 		
@@ -116,118 +111,12 @@ class DebugTest
 			}
 		}
 	}
-
 	public function runTest()
 	{
-		$this->xdebugStartTrace();
 			
 		include($this->fileName);
 		
-		$this->xdebugStopTrace();
 		
-	}
-	/*xdebug functions call info*/
-	protected function xdebugStartTrace()
-	{
-		if(!$this->collectXdebugTrace)
-		{
-			return;
-		}
-		
-		$traceFileName=$this->xdebugTraceDirName.'/'.$this->fileName;
-		
-		if(!is_dir(dirname($traceFileName)))
-		{
-			mkdir(dirname($traceFileName), 0777, true);
-		}
-		
-		xdebug_start_trace($traceFileName);
-	}
-	protected function xdebugStopTrace()
-	{
-		if(!$this->collectXdebugTrace)
-		{
-			return;
-		}
-		xdebug_stop_trace();
-	}
-	public function xdebugGetTrace($offset=null)
-	{
-		$this->xdebugLoadTrace($offset);
-		
-		return $this->xdebugTrace;
-	}
-	protected function xdebugLoadTrace($offset=null)
-	{
-		$traceFileName=$this->xdebugTraceDirName.'/'.$this->fileName.'.xt';
-		$fp=fopen($traceFileName, 'r');
-		$numLine=0;
-		$break=false;
-		$offset=is_null($offset)?6:$offset;
-		
-		while(!feof($fp))
-		{
-			//skip first 6 lines
-			$traceLine=fgetcsv($fp, 4096, "\t");
-			
-			if(($offset>-1 && $numLine<$offset) || $numLine==0)
-			{
-				$numLine++;
-				continue;
-			}
-			if(!isset($traceLine[2]))
-			{
-				$numLine++;
-				continue;
-			}
-			
-			$this->xdebugTrace[$numLine]=$traceLine;
-			
-			switch($traceLine[2])
-			{
-				case '0':
-					//$traceLine[1] function #
-					$functionCalls[$traceLine[1]]=&$this->xdebugTrace[$numLine];
-					break;
-				case '1': //exit, calculate call duration
-					if($offset==6 && !isset($functionCalls[$traceLine[1]]))//exit from a function/include from first 6 entries; stop the loop
-					{
-						$break=true;
-						break;
-					}
-					if(isset($functionCalls[$traceLine[1]]))
-					{
-						$functionCalls[$traceLine[1]]['duration']=$traceLine[3]-$functionCalls[$traceLine[1]][3];
-					}
-					break;
-				case 'R': //return
-					$functionCalls[$traceLine[1]]['return']=$traceLine[5];
-					break;
-			}
-			if($break)
-			{
-				break;
-			}
-			
-			$numLine++;
-		}
-		
-		fclose($fp);
-	}
-	public function htmlStats($functionNames=null)
-	{
-		$this->xdebugGetTrace(-1);
-		echo '<table cellspacing="0" cellpadding="4" border="1">';
-		foreach($this->xdebugTrace as $xdebugTrace)
-		{
-			if($xdebugTrace[2]!='0' || (!is_null($functionNames) &&	!isset($functionNames[$xdebugTrace[5]])))
-			{
-				continue;
-			}
-			
-			echo '<tr><td>'.$xdebugTrace[5].'</td><td>'.$xdebugTrace['duration'].'</td></tr>';
-		}
-		echo '</table>';
 	}
 	/*misc.*/
 	public function loadObjectFromArray(&$obj, $arr)
